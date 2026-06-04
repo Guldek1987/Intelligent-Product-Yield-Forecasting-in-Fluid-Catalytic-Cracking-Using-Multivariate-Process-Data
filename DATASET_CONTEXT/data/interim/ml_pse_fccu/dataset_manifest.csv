@@ -1,0 +1,8 @@
+scenario_id,source_file,condition,rows,columns,time_min_first,time_min_last,train_rows,validation_rows,test_rows,output_file
+noc_stable_feed_flow,NOC_stableFeedFlow_outputs.csv,normal,2880,75,1,2880,2016,432,432,DATASET_CONTEXT/data/interim/ml_pse_fccu/headered/noc_stable_feed_flow.csv
+noc_varying_feed_flow,NOC_varyingFeedFlow_outputs.csv,normal,10080,75,1,10080,7056,1512,1512,DATASET_CONTEXT/data/interim/ml_pse_fccu/headered/noc_varying_feed_flow.csv
+heat_exchanger_fouling,UAf_decrease_outputs.csv,faulty,1440,75,1,1440,1008,216,216,DATASET_CONTEXT/data/interim/ml_pse_fccu/headered/heat_exchanger_fouling.csv
+condenser_efficiency_decrease,condEff_decrease_outputs.csv,faulty,1440,75,1,1440,1008,216,216,DATASET_CONTEXT/data/interim/ml_pse_fccu/headered/condenser_efficiency_decrease.csv
+fhn_sensor_drift,Fhn_sensorDrift_outputs.csv,faulty,1440,75,1,1440,1008,216,216,DATASET_CONTEXT/data/interim/ml_pse_fccu/headered/fhn_sensor_drift.csv
+reactor_fractionator_pressure_drop_increase,deltaP_increase_outputs.csv,faulty,1440,75,1,1440,1008,216,216,DATASET_CONTEXT/data/interim/ml_pse_fccu/headered/reactor_fractionator_pressure_drop_increase.csv
+cab_valve_leak,CAB_valveLeak_outputs.csv,faulty,1440,75,1,1440,1008,216,216,DATASET_CONTEXT/data/interim/ml_pse_fccu/headered/cab_valve_leak.csv

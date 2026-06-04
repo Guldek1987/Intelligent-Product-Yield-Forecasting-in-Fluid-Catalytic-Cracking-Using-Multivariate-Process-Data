@@ -1,0 +1,49 @@
+csv_position,column_name,symbol,unit,description,role_hint
+1,time_min,time,min,Sampling time,time
+2,F3,F3,lb/s,Fresh feed flow,input
+3,Tatm,T_atm,degF,Ambient temperature,disturbance
+4,T1,T1,degF,Feed temperature,input
+5,P4,P4,psia,Reactor pressure,state
+6,deltaP,deltaP,psig,Regenerator pressure P6 minus reactor pressure P4,state
+7,P6,P6,psia,Regenerator pressure,state
+8,Fair,F_air,mol/s,Total air flow into regenerator,state
+9,T3,T3,degF,Furnace firebox temperature,state
+10,T2,T2,degF,Temperature of fresh feed entering reactor,state
+11,Tr,T_r,degF,Temperature of reactor riser,state
+12,Treg,T_reg,degF,Temperature of regenerator,state
+13,Lsp,L_sp,ft,Standpipe catalyst level,state
+14,Tcyc,T_cyc,degF,Stack gas temperature,state
+15,Tcyc_Treg,T_cyc_minus_T_reg,degF,Stack gas temperature minus regenerator temperature,derived_state
+16,Cco_g,C_CO_g,ppm,Stack gas CO concentration,state
+17,Co2_g,C_O2_g,mol_percent,Stack gas O2 concentration,state
+18,P5,P5,psia,Overhead fractionator pressure,state
+19,V4,V4,percent,Fractionator pressure controller valve opening,control
+20,V6,V6,percent,Regenerator temperature controller valve opening,control
+21,V7,V7,percent,Regenerator pressure controller valve opening,control
+22,V3,V3,percent,Reactor inventory controller valve opening,control
+23,V1,V1,percent,Preheated feed temperature controller valve opening,control
+24,V2,V2,percent,Reactor temperature controller valve opening,control
+25,Frgc,F_rgc,lb/min,Flowrate of regenerated catalyst,catalyst
+26,Fsc,F_sc,lb/min,Flowrate of spent catalyst,catalyst
+27,ACAB,A_CAB,Amp,Amperage combustion air blower,equipment
+28,AWGC,A_WGC,Amp,Amperage wet gas compressor,equipment
+29,F5,F5,scf/min,Furnace fuel flowrate,input_control
+30,F7,F7,lb/min,Combustion air flowrate,input_control
+31,Fsg,F_sg,mol/min,Stack gas flow,gas_output
+32,FV11,FV11,mol/min,Flow through wet gas compressor suction valve,state_control
+33,P1,P1,psia,CAB suction pressure,state
+34,P2,P2,psia,CAB discharge pressure,state
+35,FLPG,F_LPG,lb/min,LPG flowrate,product_output
+36,FLN,F_LN,lb/min,Light naphtha flowrate,product_output
+37,FHN,F_HN,lb/min,Heavy naphtha flowrate,product_output
+38,FLCO,F_LCO,lb/min,Light cycle oil flowrate,product_output
+39,Fslurry,F_slurry,lb/min,Slurry flowrate,product_output
+40,Freflux,F_reflux,lb/min,Reflux flowrate,recycle_control
+41,Tfra,T_fra,degF,Overhead fractionator temperature,state
+42,T10,T_10,degF,Mid-stage fractionator temperature,state
+43,T20,T_20,degF,Bottom-stage fractionator temperature,state
+44,V9,V9,percent,Accumulator level controller valve opening,control
+45,V8,V8,percent,Fractionator temperature controller valve opening,control
+46,V10,V10,percent,Heavy naphtha temperature controller valve opening,control
+47,V11,V11,percent,Light naphtha temperature controller valve opening,control
+

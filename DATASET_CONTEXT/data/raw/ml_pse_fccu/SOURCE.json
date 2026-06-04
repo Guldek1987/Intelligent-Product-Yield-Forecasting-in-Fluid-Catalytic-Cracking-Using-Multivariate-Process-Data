@@ -1,0 +1,10 @@
+{
+  "dataset_name": "Fluid Catalytic Cracking Unit Dataset for Process Monitoring Evaluation",
+  "source_repository_url": "https://github.com/ML-PSE/Fluid-Catalytic-Cracking-Unit-Dataset-for-Process-Monitoring-Evaluation",
+  "source_page_url": "https://mlforpse.com/fccu-dataset/",
+  "downloaded_repository_head": "f08b8f8586c2c4678d155af27c8e027fc71875a6",
+  "download_date": "2026-04-17",
+  "raw_csv_has_header": false,
+  "sampling_interval_min": 1,
+  "notes": "Raw CSV files are preserved unchanged under DATASET_CONTEXT/data/raw/ml_pse_fccu/csv. Generated headered files are under DATASET_CONTEXT/data/interim/ml_pse_fccu. The main working CSV is FCCU_DYNAMIC_NN_DATASET.csv in the project root."
+}

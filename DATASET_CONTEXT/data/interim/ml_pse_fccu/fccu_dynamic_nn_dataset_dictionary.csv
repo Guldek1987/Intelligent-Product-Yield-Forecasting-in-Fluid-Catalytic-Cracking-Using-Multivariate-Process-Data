@@ -1,0 +1,76 @@
+dataset_column,source_column,unit,column_group,recommended_role,description
+dataset_row_id,,,metadata,metadata,Unique row identifier in the final main dataset.
+scenario_id,,,metadata,metadata,Scenario identifier derived from scenario metadata.
+condition,,,metadata,metadata,"Scenario condition label, normal or faulty."
+operating_phase,,,metadata,metadata,"normal_operation, pre_fault, or post_fault according to scenario timing."
+dataset_split,,,metadata,metadata,"Chronological split per scenario: train, validation, or test."
+fault_type,,,metadata,metadata,Fault label from scenario metadata.
+source_file,,,metadata,metadata,Original raw CSV filename.
+row_in_scenario,,row_index,metadata,metadata,Chronological row number inside the scenario.
+time_min,time_min,min,metadata,time_index,Sampling time in minutes from the source dataset.
+time_hour,time_min,hour,metadata,time_index,Sampling time converted to hours.
+time_day,time_min,day,metadata,time_index,Sampling time converted to days.
+is_faulty_scenario,,binary,metadata,metadata,1 for faulty scenarios and 0 for normal scenarios.
+fault_start_min,,min,metadata,metadata,Fault start time in minutes when available.
+fault_transition_end_min,,min,metadata,metadata,Fault transition end time in minutes when available.
+is_after_fault_start,,binary,metadata,metadata,1 if the row is at or after the fault start time.
+time_since_fault_start_min,,min,metadata,metadata,Time relative to fault start in minutes; negative values are pre-fault rows.
+time_since_fault_start_hour,,hour,metadata,metadata,Time relative to fault start in hours.
+feed_flow_lb_min,F3,lb/min,derived_helper,helper,Fresh feed flow converted from lb/s to lb/min for yield calculations.
+feed_flow_tph,F3,metric_ton/h,derived_helper,helper,Fresh feed flow converted to metric tonnes per hour to align with the project document.
+reactor_riser_temperature_Tr_degC,Tr,degC,derived_helper,helper,Reactor riser temperature converted from degF to degC to align with the project document.
+gasoline_proxy_flow_lb_min,FLN+FHN,lb/min,target_flow,target_flow_candidate,Gasoline proxy flow defined as light naphtha plus heavy naphtha.
+measured_products_flow_lb_min,FLPG+FLN+FHN+FLCO+Fslurry,lb/min,derived_helper,helper,Sum of measured mass-based product streams available in the source dataset.
+lpg_wt_pct_of_feed,FLPG/F3,wt_pct_of_feed,target_yield_proxy,target_yield_candidate,LPG flow expressed as weight percent of feed using mass flow ratio.
+light_naphtha_wt_pct_of_feed,FLN/F3,wt_pct_of_feed,target_yield_proxy,target_yield_candidate,Light naphtha flow expressed as weight percent of feed.
+heavy_naphtha_wt_pct_of_feed,FHN/F3,wt_pct_of_feed,target_yield_proxy,target_yield_candidate,Heavy naphtha flow expressed as weight percent of feed.
+gasoline_proxy_wt_pct_of_feed,(FLN+FHN)/F3,wt_pct_of_feed,target_yield_proxy,target_yield_candidate,Gasoline proxy yield in wt% of feed using light plus heavy naphtha.
+light_cycle_oil_wt_pct_of_feed,FLCO/F3,wt_pct_of_feed,target_yield_proxy,target_yield_candidate,Light cycle oil flow expressed as weight percent of feed.
+slurry_wt_pct_of_feed,Fslurry/F3,wt_pct_of_feed,target_yield_proxy,target_yield_candidate,Slurry flow expressed as weight percent of feed.
+measured_products_wt_pct_of_feed,(FLPG+FLN+FHN+FLCO+Fslurry)/F3,wt_pct_of_feed,derived_helper,helper,Sum of measured product streams expressed as weight percent of feed.
+feed_flow_F3_lb_s,F3,lb/s,input,feature,Fresh feed flow
+ambient_temperature_Tatm_degF,Tatm,degF,disturbance,feature,Ambient temperature
+feed_temperature_T1_degF,T1,degF,input,feature,Feed temperature
+reactor_inlet_feed_temperature_T2_degF,T2,degF,state,feature,Temperature of fresh feed entering reactor
+reactor_riser_temperature_Tr_degF,Tr,degF,state,feature,Temperature of reactor riser
+regenerator_temperature_Treg_degF,Treg,degF,state,feature,Temperature of regenerator
+reactor_pressure_P4_psia,P4,psia,state,feature,Reactor pressure
+regenerator_minus_reactor_pressure_deltaP_psig,deltaP,psig,state,feature,Regenerator pressure P6 minus reactor pressure P4
+regenerator_pressure_P6_psia,P6,psia,state,feature,Regenerator pressure
+regenerator_total_air_flow_Fair_mol_s,Fair,mol/s,state,feature,Total air flow into regenerator
+furnace_firebox_temperature_T3_degF,T3,degF,state,feature,Furnace firebox temperature
+standpipe_catalyst_level_Lsp_ft,Lsp,ft,state,feature,Standpipe catalyst level
+stack_gas_temperature_Tcyc_degF,Tcyc,degF,state,feature,Stack gas temperature
+stack_gas_minus_regenerator_temperature_Tcyc_Treg_degF,Tcyc_Treg,degF,derived_state,feature,Stack gas temperature minus regenerator temperature
+stack_gas_co_Cco_g_ppm,Cco_g,ppm,state,feature,Stack gas CO concentration
+stack_gas_o2_Co2_g_mol_pct,Co2_g,mol_percent,state,feature,Stack gas O2 concentration
+fractionator_overhead_pressure_P5_psia,P5,psia,state,feature,Overhead fractionator pressure
+regenerated_catalyst_flow_Frgc_lb_min,Frgc,lb/min,catalyst,feature,Flowrate of regenerated catalyst
+spent_catalyst_flow_Fsc_lb_min,Fsc,lb/min,catalyst,feature,Flowrate of spent catalyst
+combustion_air_blower_current_ACAB_amp,ACAB,Amp,equipment,feature,Amperage combustion air blower
+wet_gas_compressor_current_AWGC_amp,AWGC,Amp,equipment,feature,Amperage wet gas compressor
+furnace_fuel_flow_F5_scf_min,F5,scf/min,input_control,feature,Furnace fuel flowrate
+combustion_air_flow_F7_lb_min,F7,lb/min,input_control,feature,Combustion air flowrate
+stack_gas_flow_Fsg_mol_min,Fsg,mol/min,gas_output,auxiliary_output,Stack gas flow
+wet_gas_compressor_suction_valve_flow_FV11_mol_min,FV11,mol/min,state_control,feature,Flow through wet gas compressor suction valve
+cab_suction_pressure_P1_psia,P1,psia,state,feature,CAB suction pressure
+cab_discharge_pressure_P2_psia,P2,psia,state,feature,CAB discharge pressure
+lpg_flow_FLPG_lb_min,FLPG,lb/min,product_output,target_flow_candidate,LPG flowrate
+light_naphtha_flow_FLN_lb_min,FLN,lb/min,product_output,target_flow_candidate,Light naphtha flowrate
+heavy_naphtha_flow_FHN_lb_min,FHN,lb/min,product_output,target_flow_candidate,Heavy naphtha flowrate
+light_cycle_oil_flow_FLCO_lb_min,FLCO,lb/min,product_output,target_flow_candidate,Light cycle oil flowrate
+slurry_flow_Fslurry_lb_min,Fslurry,lb/min,product_output,target_flow_candidate,Slurry flowrate
+reflux_flow_Freflux_lb_min,Freflux,lb/min,recycle_control,feature_recycle,Reflux flowrate
+fractionator_overhead_temperature_Tfra_degF,Tfra,degF,state,feature,Overhead fractionator temperature
+fractionator_mid_temperature_T10_degF,T10,degF,state,feature,Mid-stage fractionator temperature
+fractionator_bottom_temperature_T20_degF,T20,degF,state,feature,Bottom-stage fractionator temperature
+valve_fractionator_pressure_V4_pct,V4,percent,control,feature,Fractionator pressure controller valve opening
+valve_regenerator_temperature_V6_pct,V6,percent,control,feature,Regenerator temperature controller valve opening
+valve_regenerator_pressure_V7_pct,V7,percent,control,feature,Regenerator pressure controller valve opening
+valve_reactor_inventory_V3_pct,V3,percent,control,feature,Reactor inventory controller valve opening
+valve_preheated_feed_temperature_V1_pct,V1,percent,control,feature,Preheated feed temperature controller valve opening
+valve_reactor_temperature_V2_pct,V2,percent,control,feature,Reactor temperature controller valve opening
+valve_accumulator_level_V9_pct,V9,percent,control,feature,Accumulator level controller valve opening
+valve_fractionator_temperature_V8_pct,V8,percent,control,feature,Fractionator temperature controller valve opening
+valve_heavy_naphtha_temperature_V10_pct,V10,percent,control,feature,Heavy naphtha temperature controller valve opening
+valve_light_naphtha_temperature_V11_pct,V11,percent,control,feature,Light naphtha temperature controller valve opening

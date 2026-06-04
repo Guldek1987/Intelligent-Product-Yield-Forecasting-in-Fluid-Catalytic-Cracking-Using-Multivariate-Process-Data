@@ -1,0 +1,11 @@
+column_name,unit,target_family,recommended_priority,description
+gasoline_proxy_wt_pct_of_feed,wt_pct_of_feed,yield_proxy,primary,Closest available proxy to gasoline yield in the project document.
+light_cycle_oil_wt_pct_of_feed,wt_pct_of_feed,yield_proxy,primary,Closest available proxy to light gas oil yield using FLCO.
+lpg_wt_pct_of_feed,wt_pct_of_feed,yield_proxy,secondary,LPG yield proxy in wt% of feed.
+slurry_wt_pct_of_feed,wt_pct_of_feed,yield_proxy,secondary,Slurry yield proxy in wt% of feed.
+light_naphtha_wt_pct_of_feed,wt_pct_of_feed,yield_proxy_component,secondary,Light naphtha contribution to the gasoline proxy target.
+heavy_naphtha_wt_pct_of_feed,wt_pct_of_feed,yield_proxy_component,secondary,Heavy naphtha contribution to the gasoline proxy target.
+gasoline_proxy_flow_lb_min,lb/min,flow,secondary,Gasoline proxy flow defined as FLN plus FHN.
+light_cycle_oil_flow_FLCO_lb_min,lb/min,flow,secondary,Light cycle oil flow target available directly from the source dataset.
+lpg_flow_FLPG_lb_min,lb/min,flow,secondary,LPG flow target available directly from the source dataset.
+slurry_flow_Fslurry_lb_min,lb/min,flow,secondary,Slurry flow target available directly from the source dataset.

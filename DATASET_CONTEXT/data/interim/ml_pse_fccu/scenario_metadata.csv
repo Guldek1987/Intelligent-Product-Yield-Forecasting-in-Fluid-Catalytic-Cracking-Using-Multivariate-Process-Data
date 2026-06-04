@@ -1,0 +1,9 @@
+file_name,scenario_id,condition,feed_flow_mode,duration_days,rows_expected,sampling_interval_min,fault_type,fault_start_min,fault_transition_end_min,description
+NOC_stableFeedFlow_outputs.csv,noc_stable_feed_flow,normal,stable,2,2880,1,,,,Normal operation with stable feed flow and ambient temperature from 75 to 80 degF
+NOC_varyingFeedFlow_outputs.csv,noc_varying_feed_flow,normal,varying,7,10080,1,,,,Normal operation with about 5 percent feed flow variation and ambient temperature from 75 to 80 degF
+UAf_decrease_outputs.csv,heat_exchanger_fouling,faulty,not_specified,1,1440,1,heat_exchanger_fouling,120,720,Preheater heat transfer coefficient UAf decreases from nominal 25 to 22.5
+condEff_decrease_outputs.csv,condenser_efficiency_decrease,faulty,not_specified,1,1440,1,condenser_efficiency_decrease,120,720,Fractionator condenser efficiency decreases from nominal 0.9 to 0.855
+Fhn_sensorDrift_outputs.csv,fhn_sensor_drift,faulty,not_specified,1,1440,1,fhn_sensor_drift,120,1440,Heavy naphtha flow sensor drift increases linearly from 0 to 35 lb/min
+deltaP_increase_outputs.csv,reactor_fractionator_pressure_drop_increase,faulty,not_specified,1,1440,1,pressure_drop_increase,120,300,Higher pressure drop between reactor P4 and fractionator P5
+CAB_valveLeak_outputs.csv,cab_valve_leak,faulty,not_specified,1,1440,1,cab_valve_leak,120,300,CAB vent valve leak represented by k_comb decrease from nominal 40 to 35
+
