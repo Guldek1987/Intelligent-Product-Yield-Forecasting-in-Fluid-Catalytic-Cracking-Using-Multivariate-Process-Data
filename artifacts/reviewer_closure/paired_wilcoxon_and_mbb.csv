@@ -1,0 +1,3 @@
+method,seed,paired_or_balanced_unit,estimate,statistic,p_value,ci95_lower,ci95_upper,repetitions,block_length,resampling
+scenario-paired Wilcoxon,42,scenario,0.000041,13.0,0.9375,,,,,
+overlapping moving-block bootstrap,42,equal-weight scenario mean of window MSE differences,4.895587e-07,,,-0.000023,0.000011,5000,35,overlapping sequential blocks within scenario

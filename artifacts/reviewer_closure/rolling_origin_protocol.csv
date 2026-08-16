@@ -1,0 +1,4 @@
+origin_id,train_fraction,validation_fraction,assessment_fraction,train_windows,validation_windows,assessment_windows,historical_test_rows_used,best_epoch,training_time_sec,proposed_macro_rmse,proposed_macro_mae,arx_macro_rmse,arx_macro_mae
+1,0.40,0.15,0.15,6613,2329,2329,0,1,24.505796,0.040070,0.022670,0.040109,0.022702
+2,0.55,0.15,0.15,9185,2329,2329,0,1,33.630612,0.021406,0.016770,0.021417,0.016773
+3,0.70,0.15,0.15,11752,2329,2329,0,1,43.698183,0.021766,0.016954,0.021815,0.016985

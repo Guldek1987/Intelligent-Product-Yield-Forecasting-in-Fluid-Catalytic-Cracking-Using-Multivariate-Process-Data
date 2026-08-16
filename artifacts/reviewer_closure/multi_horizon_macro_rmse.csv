@@ -1,0 +1,5 @@
+horizon_min,proposed_hybrid_rmse,arx_like_ridge_rmse,evaluation_seed
+1,0.008602,0.008608,42
+5,0.022796,0.022751,42
+15,0.061341,0.056038,42
+30,0.101168,0.091227,42

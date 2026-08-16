@@ -1,0 +1,11 @@
+seed,comparison,scenario_balanced_mean_mse_difference,dm_hac_statistic,two_sided_p_value,hac_lag,direction
+11,proposed minus ARX,1.556479e-05,4.720573,0.000002,34,ARX lower loss
+23,proposed minus ARX,-1.945519e-06,-0.255431,0.798390,34,proposed lower loss
+42,proposed minus ARX,4.895586e-07,0.049800,0.960282,34,ARX lower loss
+71,proposed minus ARX,2.330265e-05,3.322199,0.000893,34,ARX lower loss
+101,proposed minus ARX,1.190058e-05,2.048966,0.040465,34,ARX lower loss
+131,proposed minus ARX,2.803407e-05,3.471798,0.000517,34,ARX lower loss
+173,proposed minus ARX,1.134103e-05,1.507044,0.131799,34,ARX lower loss
+211,proposed minus ARX,-2.449623e-05,-3.883171,0.000103,34,proposed lower loss
+257,proposed minus ARX,3.285180e-05,2.131354,0.033060,34,ARX lower loss
+307,proposed minus ARX,9.531049e-07,0.152455,0.878828,34,ARX lower loss

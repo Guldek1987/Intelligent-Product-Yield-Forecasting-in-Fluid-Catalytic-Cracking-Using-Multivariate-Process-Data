@@ -1,0 +1,12 @@
+parameter,search_space,scale_or_constraint,selected_value,selection_protocol
+hidden_dim,"[64, 96, 128]",categorical,64,"10-trial Optuna TPE; validation macro RMSE"
+num_heads,"[2, 4, 8]",categorical and divisible by hidden_dim,2,"10-trial Optuna TPE; validation macro RMSE"
+recurrent_layers,"[1, 2, 3]",categorical,3,"10-trial Optuna TPE; validation macro RMSE"
+dropout,"[0.05, 0.20]",continuous,0.079951,"10-trial Optuna TPE; validation macro RMSE"
+learning_rate,"[0.001, 0.004]",log-continuous,0.002040,"10-trial Optuna TPE; validation macro RMSE"
+weight_decay,"[0.000001, 0.0005]",log-continuous,0.000040,"10-trial Optuna TPE; validation macro RMSE"
+batch_size,"[64, 128]",categorical,128,"10-trial Optuna TPE; validation macro RMSE"
+aux_weight,"[0.10, 0.35]",continuous,0.142631,"10-trial Optuna TPE; validation macro RMSE"
+consistency_weight,"[0.05, 0.30]",continuous,0.066263,"10-trial Optuna TPE; validation macro RMSE"
+bounds_weight,"[0.005, 0.05]",log-continuous,0.044448,"10-trial Optuna TPE; validation macro RMSE"
+study_budget,10 trials,"TPESampler seed 42; MedianPruner with 3 startup trials",trial 1 selected,"configuration frozen for FCCU_04 follow-up evaluations"

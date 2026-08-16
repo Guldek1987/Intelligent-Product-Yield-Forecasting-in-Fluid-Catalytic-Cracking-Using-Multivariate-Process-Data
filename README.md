@@ -1,231 +1,285 @@
-# FCCU Product-Yield Forecasting with Dynamic Data-Driven Models
+# Process-Informed Hybrid ARX–Residual Attentive GRU for FCCU Product-Yield Forecasting
 
-This repository contains a reproducible research workflow for forecasting
-product-yield proxies in a fluid catalytic cracking unit (FCCU) from
-multivariate process time series. The work is organized as four executed
-notebooks covering data audit, classical machine-learning baselines, recurrent
-and modern sequence models, and an integrated manuscript-ready comparison.
+[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![Jupyter](https://img.shields.io/badge/Jupyter-executed-orange.svg)](https://jupyter.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.10-ee4c2c.svg)](https://pytorch.org/)
+[![Data source](https://img.shields.io/badge/data-ML--PSE%20FCCU-2f6c9e.svg)](https://github.com/ML-PSE/Fluid-Catalytic-Cracking-Unit-Dataset-for-Process-Monitoring-Evaluation)
 
-The study uses the open ML-PSE FCCU benchmark as the empirical basis and
-reframes it for short-horizon product-yield forecasting. The main contribution
-is a hybrid dynamic model that combines an ARX-like linear skip branch with a
-nonlinear causal sequence encoder, attention-based temporal aggregation,
-residual correction, and an auxiliary total-yield consistency head.
+This repository provides the executed research workflow for short-horizon,
+multi-output forecasting of fluid catalytic cracking unit (FCCU) product-yield
+proxies. The proposed model is the **manuscript Hybrid ARX–Residual Attentive
+GRU**: a frozen ARX-like linear prior combined with a causal temporal
+convolution, a three-layer GRU, causal self-attention, additive attention
+pooling, residual context gating, a nonlinear residual head, and auxiliary
+total-yield supervision.
 
-## Research Scope
+The repository reflects the final reviewer-response evidence. It preserves the
+model architecture selected in the manuscript, publishes the real 10-trial
+Optuna search from Notebook 3, and adds the already executed multi-seed,
+dependence-aware, rolling-origin, leave-one-scenario-out, multi-horizon,
+residual-comparator, and direct grouped Shapley analyses from Notebook 4.
 
-- Task: multi-output forecasting of FCCU product-yield proxies.
-- Main dataset: `FCCU_DYNAMIC_NN_DATASET.csv`.
-- Sampling interval: 1 minute.
-- Dataset size: 20,160 rows and 75 columns.
-- Scenarios: 7 retained operating scenarios, including normal operation and
-  five fault cases.
-- Split protocol: chronological train / validation / test splits inside each
-  scenario.
-- Forecast design: 30-step lookback and 5-step forecast horizon.
-- Primary targets:
-  - `gasoline_proxy_wt_pct_of_feed`
-  - `light_cycle_oil_wt_pct_of_feed`
-  - `lpg_wt_pct_of_feed`
-  - `slurry_wt_pct_of_feed`
-- Auxiliary target: `measured_products_wt_pct_of_feed`.
+> **Evidence boundary.** The FCCU benchmark is simulated rather than plant
+> measurement data. The historical test subset was exposed in earlier project
+> workflows, so its follow-up results are descriptive/post-selection. No
+> statistically significant overall advantage over ARX-like Ridge is claimed.
 
-## Repository Workflow
+## Dataset and source
 
-| Notebook | Role |
+The analysis is derived from the open **Fluid Catalytic Cracking Unit Dataset
+for Process Monitoring Evaluation**:
+
+- [Official ML-PSE dataset repository](https://github.com/ML-PSE/Fluid-Catalytic-Cracking-Unit-Dataset-for-Process-Monitoring-Evaluation)
+- [Dataset description page](https://mlforpse.com/fccu-dataset/)
+- [Underlying open FCCU simulation model](https://github.com/Baldea-Group/FCC-Fractionator)
+- [Source-model article](https://doi.org/10.1016/j.compchemeng.2022.107900)
+
+The seven retained scenarios contain 20,160 one-minute observations. Within
+each scenario, samples are ordered chronologically and assigned to train,
+validation, and historical-test segments.
+
+| Data stage | Added columns | Total | Forecasting role |
+| --- | ---: | ---: | --- |
+| Raw scenario CSV | 47 | 47 | `time_min` plus 46 source signals |
+| Scenario and split metadata | 16 | 63 | Audit and partition control; excluded from predictors |
+| Deterministic units, aggregates, and yield proxies | 12 | 75 | Analysis-ready dataset |
+| Causal model tensor | — | 41 | 37 exogenous channels + 4 lagged target channels |
+
+The four forecast targets are gasoline proxy, light cycle oil, LPG, and slurry,
+all expressed as wt% of feed. `measured_products_wt_pct_of_feed` is used as an
+auxiliary total-yield target, not as an additional forecast output.
+
+## Leakage-safe workflow
+
+```mermaid
+flowchart TB
+  subgraph R1["Data foundation"]
+    direction LR
+    A["7 simulated FCCU scenarios<br/>47 raw columns"] --> B["Deterministic preparation<br/>75 analysis columns"] --> C["Chronological split<br/>inside each scenario"]
+  end
+  subgraph R2["Causal modelling"]
+    direction LR
+    D["Train-only imputation<br/>and scaling"] --> E["30-step causal windows<br/>37 exogenous + 4 target history"] --> F["5-minute multi-output<br/>forecast target"]
+  end
+  subgraph R3["Selection and evaluation"]
+    direction LR
+    G["10-trial Optuna search<br/>validation RMSE only"] --> H["Frozen proposed model<br/>10 pre-specified seeds"] --> I["Rolling origin, LOSO,<br/>DM-HAC, MBB, Shapley"]
+  end
+  C --> D
+  F --> G
+```
+
+Preprocessing is fitted on training data only. Future targets, scenario labels,
+fault labels, split identifiers, and fault-timing metadata never enter the
+predictor. Window construction is performed separately within each scenario
+and split, preventing lookback windows from crossing partition boundaries.
+
+## Proposed architecture
+
+![Figure 2. Proposed Hybrid ARX–Residual Attentive GRU architecture](figures/Figure_02_Proposed_Hybrid_ARX_Residual_Attentive_GRU_Architecture.png)
+
+*Terminology note:* the supplied manuscript artwork retains the legacy block
+label “Physics-Guided Multi-Output Training Objective.” The unchanged objective
+is described in the revised repository text as a **consistency-regularized
+multi-output objective**; no first-principles supervision is claimed.
+
+| Component | Executed configuration |
 | --- | --- |
-| `FCCU_01_Data_Audit_and_Journal_Analysis.ipynb` | Data provenance, variable mapping, integrity audit, split checks, target statistics, feature-target diagnostics, and exploratory figures. |
-| `FCCU_02_ML_Journal_Workflow.ipynb` | Leakage-aware preprocessing and classical ML baselines, including persistence, linear models, regularized regression, MLP, random forest, and ARX-like Ridge. |
-| `FCCU_03_DL_SOTA_Proposed_Journal_Workflow.ipynb` | Recurrent, causal sequence, SOTA-inspired baselines, proposed hybrid model, ablation studies, robustness checks, and interpretability analysis. |
-| `FCCU_04_Integrated_Results_Journal_Workflow.ipynb` | Consolidated model ranking, deduplicated comparison tables, shortlist results, operational diagnostics, and manuscript-ready closing statements. |
+| Input | `B × 30 × 41` causal tensor |
+| Forecast horizon | 5 minutes |
+| Linear prior | Frozen target-wise ARX-like Ridge skip branch |
+| Local temporal encoder | Causal temporal convolution |
+| Process memory | Three GRU layers, hidden dimension 64 |
+| Temporal weighting | Two-head causal self-attention + additive attention pooling |
+| Nonlinear correction | Residual context gate and four-target residual head |
+| Auxiliary objective | Total-yield head with consistency and soft bounds regularization |
+| Optimizer | AdamW; Smooth L1 primary loss |
+| Parameters | 178,332 trainable; 4,924 frozen ARX; 183,256 total |
 
-## Data Foundation
+The term *process-informed* denotes the causal ARX prior, auxiliary total-yield
+consistency, and soft admissible-range penalties. It does not imply direct
+first-principles supervision or a hard physical projection.
 
-The working dataset is derived from the ML-PSE Fluid Catalytic Cracking Unit
-dataset for process monitoring evaluation. The raw source files are scenario
-CSV files with process measurements from an FCCU simulation benchmark. The
-prepared project dataset adds readable column names, scenario metadata,
-chronological split labels, operating phase labels, product-flow variables, and
-yield proxies in `wt% of feed`.
+## Hyperparameter selection
 
-The open source benchmark does not directly provide catalyst activity, feed API
-gravity, sulfur content, direct coke yield, or direct dry-gas yield. Therefore,
-this study uses the closest available measured product proxies:
+Notebook 3 contains the actual Optuna study. Ten TPE trials were evaluated by
+validation macro RMSE; a median pruner used three startup trials. The selected
+configuration was then frozen for the reviewer-response experiments in
+Notebook 4—there was no test-driven re-tuning.
 
-| Product concept | Dataset target used |
-| --- | --- |
-| Gasoline yield | `gasoline_proxy_wt_pct_of_feed`, defined from light plus heavy naphtha proxy components |
-| Light gas oil yield | `light_cycle_oil_wt_pct_of_feed` |
-| LPG / gas-related yield proxy | `lpg_wt_pct_of_feed` |
-| Heavy residual product proxy | `slurry_wt_pct_of_feed` |
+| Parameter | Executed search space | Selected |
+| --- | --- | ---: |
+| Hidden dimension | {64, 96, 128} | 64 |
+| Attention heads | {2, 4, 8}, divisible by hidden dimension | 2 |
+| GRU layers | {1, 2, 3} | 3 |
+| Dropout | [0.05, 0.20] | 0.079951 ≈ 0.08 |
+| Learning rate | [0.001, 0.004], log scale | 0.002040 |
+| Weight decay | [1e-6, 5e-4], log scale | 0.000040 |
+| Batch size | {64, 128} | 128 |
+| Auxiliary-loss weight | [0.10, 0.35] | 0.142631 |
+| Consistency weight | [0.05, 0.30] | 0.066263 |
+| Bounds weight | [0.005, 0.05], log scale | 0.044448 |
 
-The audit confirmed no duplicate rows, no missing feature values, no missing
-target values, monotonic time ordering inside scenarios, and chronological
-split consistency.
+The selected Optuna trial achieved validation macro RMSE 0.020483 in Notebook
+3. Notebook 4 evaluates the frozen configuration across ten pre-specified
+seeds: 11, 23, 42, 71, 101, 131, 173, 211, 257, and 307.
 
-## Method Summary
+## Main frozen-model results
 
-The workflow uses leakage-aware dynamic modeling:
-
-- Scenario-wise chronological ordering is preserved.
-- Feature imputation and scaling are fitted on training data only.
-- Fault-timing metadata are retained for analysis but excluded from model
-  inputs.
-- Each supervised sample is a causal window of past process states and, for
-  autoregressive models, past target values.
-- Evaluation reports RMSE, MAE, R2, MAPE, and SMAPE on validation and test
-  splits.
-
-The proposed hybrid architecture uses:
-
-- Frozen ARX-like linear skip branch over the full input window.
-- Causal temporal convolution for local transient extraction.
-- GRU memory encoder for process dynamics.
-- Causal self-attention refinement and temporal attention pooling.
-- Residual nonlinear correction head.
-- Context summary and residual gating branch.
-- Auxiliary total-yield head for consistency supervision.
-
-<img src="DOCs/FCCU_Journal_Pipeline_and_Proposed_Hybrid-Page%202%20%E2%80%94%20Proposed%20Hybrid%20Architecture.drawio.png" alt="Proposed hybrid FCCU neural architecture" width="100%">
-
-## Key Results
-
-The integrated retained comparison covers 16 unique models from the ML and DL
-workflows. The proposed hybrid model achieved the strongest aggregate test
-score, while ARX-like Ridge remained the closest competitor.
-
-| Rank | Model | Family | Input set | Test RMSE | Test MAE | Test R2 |
-| ---: | --- | --- | --- | ---: | ---: | ---: |
-| 1 | Proposed Hybrid | Proposed hybrid | Autoregressive + exogenous | 0.0224 | 0.0172 | 0.9679 |
-| 2 | ARX-like Ridge | ARX-like reference | Autoregressive + exogenous | 0.0228 | 0.0174 | 0.9678 |
-| 3 | Persistence | Naive | Target history only | 0.0327 | 0.0262 | 0.9055 |
-| 4 | Ridge Regression | Regularized linear | Exogenous only | 0.0382 | 0.0250 | 0.9642 |
-| 5 | Linear Regression | Linear | Exogenous only | 0.0391 | 0.0255 | 0.9596 |
-| 6 | ElasticNet | Regularized linear | Exogenous only | 0.0407 | 0.0263 | 0.9637 |
-| 7 | Causal Transformer | Modern sequence DL | Autoregressive + exogenous | 0.0501 | 0.0362 | 0.9551 |
-
-Relative to the strongest exogenous-only baseline, Ridge Regression, the
-proposed hybrid reduced test macro RMSE by 41.36%. Relative to ARX-like Ridge,
-the reduction was 1.75%, which indicates that the FCCU forecasting task is
-strongly shaped by linear dynamic structure as well as nonlinear residual
-effects.
-
-![Integrated benchmark ranking](artifacts/readme_figures/integrated_cell_07_output_00_fig_01.png)
-
-## Target-Wise Performance
-
-The target-wise RMSE structure shows that the largest remaining errors are
-associated with the gasoline proxy and LPG targets, while light cycle oil and
-slurry yield proxies are forecast with smaller absolute RMSE.
-
-![Target-wise RMSE structure](artifacts/readme_figures/integrated_cell_07_output_02_fig_03.png)
-
-Shortlisted target-wise RMSE:
-
-| Model | Gasoline proxy | Light cycle oil | LPG | Slurry |
+| Model / split | RMSE | MAE | R² | sMAPE (%) |
 | --- | ---: | ---: | ---: | ---: |
-| Proposed Hybrid | 0.0450 | 0.0146 | 0.0207 | 0.0093 |
-| ARX-like Ridge | 0.0453 | 0.0146 | 0.0218 | 0.0094 |
-| Ridge Regression | 0.1053 | 0.0147 | 0.0233 | 0.0096 |
-| Causal Transformer | 0.1134 | 0.0163 | 0.0600 | 0.0108 |
+| Proposed, validation, 10-seed mean ± SD | 0.020590 ± 0.000061 | 0.016140 ± 0.000052 | 0.985095 ± 0.000081 | 0.133122 ± 0.000374 |
+| Proposed, historical test, 10-seed mean ± SD | 0.022809 ± 0.000116 | 0.017378 ± 0.000081 | 0.967491 ± 0.000344 | 0.134715 ± 0.000557 |
+| ARX-like Ridge, historical test | 0.022751 | 0.017394 | 0.967819 | 0.134932 |
 
-## Operating-Segment Diagnostics
+The point estimates are nearly identical. The available dependence-aware tests
+do not establish a statistically significant overall advantage of the proposed
+model over ARX-like Ridge.
 
-Operational diagnostics separate normal and faulty conditions, as well as
-fault-transition segments. These results show that the proposed hybrid and
-ARX-like Ridge are considerably more stable than exogenous-only Ridge during
-fault-related operating segments.
+![Supplementary Figure S1. Test RMSE across ten frozen-model seeds](figures/S1_Full_Model_Test_RMSE_Across_10_Seeds.png)
 
-![Operating segment comparison](artifacts/readme_figures/integrated_cell_09_output_02_fig_04.png)
+## Dependence-aware inference
 
-## Ablation and Robustness Findings
+For the primary frozen run (seed 42), the window-level squared-loss difference
+is defined as proposed minus ARX. Serial dependence is handled within each
+scenario.
 
-The ablation study supports the full model design. Removing individual neural
-components causes only small changes near the optimum, but reducing the
-exogenous feature set or shortening the lookback window sharply degrades
-performance. The best retained configuration uses a 30-step lookback and
-5-step forecast horizon.
+| Test | Estimate / statistic | Result |
+| --- | --- | --- |
+| Scenario-paired Wilcoxon | statistic 13.0 | two-sided p = 0.9375 |
+| Diebold–Mariano with HAC variance | mean difference 4.895586e-7; DM = 0.049800; HAC lag 34 | two-sided p = 0.960282 |
+| Overlapping moving-block bootstrap | 5,000 repetitions; block length 35 | 95% CI [-2.3e-5, 1.1e-5] |
 
-![Ablation ranking](artifacts/readme_figures/integrated_cell_11_output_02_fig_06.png)
+The moving-block bootstrap resamples overlapping sequential blocks within each
+scenario and then gives every scenario equal weight. Its interval contains
+zero, consistent with the non-significant seed-42 DM-HAC and Wilcoxon results.
+Seed-specific DM-HAC values are retained in
+[`dm_hac_by_seed.csv`](artifacts/reviewer_closure/dm_hac_by_seed.csv).
 
-Robustness checks show mild degradation under small additive noise and larger
-degradation under random missingness, which is expected for multivariate
-dynamic models using dense process-state windows.
+## Rolling-origin evaluation
 
-| Robustness setting | Test RMSE | Test MAE | Test R2 |
-| --- | ---: | ---: | ---: |
-| Additive noise 0.00 | 0.0224 | 0.0172 | 0.9679 |
-| Additive noise 0.01 | 0.0238 | 0.0185 | 0.9672 |
-| Additive noise 0.05 | 0.0408 | 0.0324 | 0.9523 |
-| Random missingness 0.05 | 0.0950 | 0.0680 | 0.8273 |
-| Random missingness 0.10 | 0.1346 | 0.0964 | 0.6982 |
+Rolling-origin assessment uses only the original development portion
+(`train + validation`); historical-test rows used = 0. Fractions are applied
+within each scenario, so exact minute cutoffs differ with scenario length and
+are published in
+[`rolling_origin_cutoffs.csv`](artifacts/reviewer_closure/rolling_origin_cutoffs.csv).
 
-## Exploratory Evidence
+| Origin | Train / validation / assessment | Windows (train / validation / assessment) | Proposed RMSE | ARX RMSE |
+| ---: | --- | --- | ---: | ---: |
+| 1 | 40% / 15% / 15% | 6,613 / 2,329 / 2,329 | 0.040070 | 0.040109 |
+| 2 | 55% / 15% / 15% | 9,185 / 2,329 / 2,329 | 0.021406 | 0.021417 |
+| 3 | 70% / 15% / 15% | 11,752 / 2,329 / 2,329 | 0.021766 | 0.021815 |
 
-The data-audit notebook includes scenario-level product-yield structure,
-feature-target association matrices, temporal autocorrelation diagnostics,
-representative fault trajectories, and SHAP-based exploratory interpretation.
+The three-origin mean macro RMSE is 0.027747 for the proposed model and
+0.027780 for ARX-like Ridge. These results support temporal stability on the
+development trajectories, not superiority.
 
-![Scenario-wise product yield structure](artifacts/fccu_01_figures_check/fig_01_cell_8_output_9.png)
+## Scenario and horizon stress tests
 
-![Representative pressure-drop fault trajectory](artifacts/fccu_01_figures_check/fig_14_cell_8_output_31.png)
+Leave-one-scenario-out evaluation does **not** confirm robust generalization to
+an unseen operating regime. The equal-scenario macro average is 36.954216 for
+the proposed model and 36.954174 for ARX-like Ridge, dominated by the held-out
+reactor/fractionator pressure-drop-increase scenario.
 
-## Reproducibility
+![Supplementary Figure S2. LOSO macro RMSE by held-out scenario](figures/S2_LOSO_Macro_RMSE_by_Held_Out_Scenario.png)
 
-Recommended execution order:
+The seed-42 horizon experiment shows that the proposed model remains close to
+ARX at 1–5 minutes, whereas ARX is better at 15 and 30 minutes.
 
-```bash
-python -m pip install -r requirements.txt
-jupyter lab FCCU_01_Data_Audit_and_Journal_Analysis.ipynb
-jupyter lab FCCU_02_ML_Journal_Workflow.ipynb
-jupyter lab FCCU_03_DL_SOTA_Proposed_Journal_Workflow.ipynb
-jupyter lab FCCU_04_Integrated_Results_Journal_Workflow.ipynb
-```
+| Horizon | Proposed RMSE | ARX RMSE |
+| ---: | ---: | ---: |
+| 1 min | 0.008602 | 0.008608 |
+| 5 min | 0.022796 | 0.022751 |
+| 15 min | 0.061341 | 0.056038 |
+| 30 min | 0.101168 | 0.091227 |
 
-Core Python dependencies used by the executed notebooks:
+![Supplementary Figure S3. Forecast-horizon sensitivity](figures/S3_Forecast_Horizon_Sensitivity.png)
 
-```text
-numpy
-pandas
-scikit-learn
-statsmodels
-matplotlib
-seaborn
-torch
-optuna
-shap
-tqdm
-nbformat
-jupyterlab
-```
+Accordingly, the supported forecasting scope is short-horizon operation,
+especially 1–5 minutes; a broad long-horizon advantage is not claimed.
 
-The executed environment recorded in the notebooks used Python 3.11.14,
-NumPy 2.4.4, pandas 2.3.3, scikit-learn 1.8.0, matplotlib 3.10.8, and
-PyTorch 2.10.0. The deep-learning workflow selected the Apple Silicon MPS
-backend when available.
+## Direct model interpretation
 
-## Project Files
+The primary interpretation calls the frozen proposed model directly. Grouped
+permutation-Shapley values were estimated for 41 input-channel groups using 28
+scenario-stratified windows and 64 permutations organized as 32 antithetic
+pairs. The target-mean ranking is led by the historical gasoline channel
+(approximately 0.207 wt%-points), accumulator-level valve V9 (0.110), the
+historical LPG channel (0.089), fractionator overhead temperature (0.072), and
+CAB discharge pressure P2 (0.054).
+
+![Figure 11. Direct grouped Shapley importance for the proposed model](figures/Figure_11_Direct_Grouped_Shapley_Importance.png)
+
+Random-Forest TreeSHAP figures in the exploratory workflow describe
+feature–target associations and are not presented as direct explanations of
+the neural hybrid. A separate surrogate audit produced fidelity R² values of
+0.989549, 0.668737, 0.995762, and 0.805008 for gasoline, LCO, LPG, and slurry,
+respectively. Fidelity is insufficient for LCO and slurry; therefore the
+surrogate was not used for the principal Shapley conclusions.
+
+## Computational profile
+
+| Measure | Proposed hybrid | ARX-like Ridge |
+| --- | ---: | ---: |
+| Parameters | 183,256 total / 178,332 trainable | 4,924 |
+| End-to-end training time | 89.969 s | 34.394 s |
+| Single-window median latency | 15.221 ms | 0.0248 ms |
+| Single-window p95 latency | 17.645 ms | 0.0314 ms |
+| 256-window median latency | 20.358 ms | 0.291 ms |
+| 256-window throughput | 12,575 windows/s | 879,916 windows/s |
+
+Timing values use one matched protocol and should not be mixed with latency
+figures from earlier manuscript drafts. ARX-like Ridge is the preferable model
+when minimal latency, simplicity, and comparable short-horizon accuracy are the
+primary deployment criteria.
+
+## Repository structure
 
 ```text
 .
-|-- FCCU_01_Data_Audit_and_Journal_Analysis.ipynb
-|-- FCCU_02_ML_Journal_Workflow.ipynb
-|-- FCCU_03_DL_SOTA_Proposed_Journal_Workflow.ipynb
-|-- FCCU_04_Integrated_Results_Journal_Workflow.ipynb
-|-- FCCU_DYNAMIC_NN_DATASET.csv
-|-- DATASET_CONTEXT/
-|-- DOCs/
-`-- artifacts/
+├── DATASET_CONTEXT/          # source provenance, dictionary, targets, loader, preparation code
+├── notebooks/                # four executed Jupyter notebooks
+├── artifacts/
+│   └── reviewer_closure/     # compact reviewer-facing CSV tables
+├── figures/                  # manuscript Figures 1–11 and supplementary reviewer figures
+├── FCCU_DYNAMIC_NN_DATASET.csv
+├── requirements.txt
+└── README.md
 ```
 
-## Provenance
+| Notebook | Purpose |
+| --- | --- |
+| [`FCCU_01`](notebooks/FCCU_01_Data_Audit_and_Journal_Analysis.ipynb) | Provenance, 75-column audit, targets, leakage checks, and exploratory figures |
+| [`FCCU_02`](notebooks/FCCU_02_ML_Journal_Workflow.ipynb) | Classical ML and ARX-like baselines |
+| [`FCCU_03`](notebooks/FCCU_03_DL_SOTA_Proposed_Journal_Workflow.ipynb) | Sequence baselines, proposed architecture, and executed 10-trial Optuna search |
+| [`FCCU_04`](notebooks/FCCU_04_Integrated_Results_Journal_Workflow.ipynb) | Frozen-model reviewer-response experiments and complete saved outputs |
 
-Primary dataset source:
+## Reproducibility
 
-- ML-PSE FCCU dataset page: https://mlforpse.com/fccu-dataset/
-- ML-PSE FCCU GitHub repository: https://github.com/ML-PSE/Fluid-Catalytic-Cracking-Unit-Dataset-for-Process-Monitoring-Evaluation
+Start Jupyter from the repository root so the notebooks resolve the dataset and
+context paths consistently:
 
-The prepared dataset and notebooks in this repository are research artifacts
-for product-yield forecasting. Proxy targets should be interpreted according
-to the available measured variables in the open FCCU benchmark rather than as
-direct refinery laboratory assays.
+```bash
+python -m pip install -r requirements.txt
+jupyter lab
+```
+
+Recommended inspection order is `FCCU_01` → `FCCU_02` → `FCCU_03` → `FCCU_04`.
+The committed notebooks already contain the outputs used in this README. Full
+re-execution of deep-learning experiments is optional and is not required to
+inspect the published evidence.
+
+The executed environment recorded Python 3.11.14, NumPy 2.4.4, pandas 2.3.3,
+scikit-learn 1.8.0, Matplotlib 3.10.8, PyTorch 2.10.0, and Optuna. PyTorch uses
+Apple Silicon MPS when available, then CUDA, then CPU.
+
+## Scientific interpretation
+
+The revised evidence supports a cautious conclusion. The Hybrid ARX–Residual
+Attentive GRU is an accurate short-horizon nonlinear extension of a strong ARX
+prior and materially outperforms several standalone deep baselines. However,
+its aggregate accuracy is statistically indistinguishable from ARX-like Ridge
+on the available historical trajectories, its computational cost is much
+higher, unseen-scenario robustness is not established, and its advantage does
+not extend to 15–30-minute horizons. New external or prospectively frozen FCCU
+trajectories are required for confirmatory superiority claims.

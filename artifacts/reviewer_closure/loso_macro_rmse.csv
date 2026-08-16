@@ -1,0 +1,9 @@
+held_out_scenario,proposed_hybrid_rmse,arx_like_ridge_rmse
+cab_valve_leak,0.499780,0.500460
+condenser_efficiency_decrease,0.314032,0.313496
+fhn_sensor_drift,0.042815,0.042610
+heat_exchanger_fouling,0.265642,0.265510
+noc_stable_feed_flow,0.019337,0.019297
+noc_varying_feed_flow,0.250613,0.250491
+reactor_fractionator_pressure_drop_increase,257.287292,257.287354
+macro_average,36.954216,36.954174

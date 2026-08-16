@@ -1,0 +1,5 @@
+stage,columns_added,total_columns,model_input_status
+raw scenario CSV,47,47,"time_min plus 46 source signals"
+scenario and split metadata,16,63,"audit and partition control; excluded from predictor tensor"
+deterministic units aggregates and yield proxies,12,75,"four historical targets may enter causally; auxiliary target used only in training objective"
+model input tensor,0,41,"37 exogenous process channels plus 4 lagged target channels"
