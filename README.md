@@ -13,16 +13,33 @@ convolution, a three-layer GRU, causal self-attention, additive attention
 pooling, residual context gating, a nonlinear residual head, and auxiliary
 total-yield supervision.
 
-The repository reflects the final reviewer-response evidence. It preserves the
-model architecture selected in the manuscript, publishes the real 10-trial
-Optuna search from Notebook 3, and adds the already executed multi-seed,
-dependence-aware, rolling-origin, leave-one-scenario-out, multi-horizon,
-residual-comparator, and direct grouped Shapley analyses from Notebook 4.
+The repository preserves the proposed architecture reported in the manuscript;
+no replacement or compact substitute model is introduced. Notebook 3 records
+the validation-only configuration study used during model development, while
+Notebook 4 contains the frozen-architecture reviewer-response experiments:
+multi-seed, dependence-aware, rolling-origin, leave-one-scenario-out,
+multi-horizon, residual-comparator, and direct grouped Shapley analyses.
 
 > **Evidence boundary.** The FCCU benchmark is simulated rather than plant
-> measurement data. The historical test subset was exposed in earlier project
-> workflows, so its follow-up results are descriptive/post-selection. No
-> statistically significant overall advantage over ARX-like Ridge is claimed.
+> measurement data. The historical test subset was not used for architecture,
+> hyperparameter, checkpoint, residual-scaling, or random-seed selection. Model
+> development decisions used the training and validation subsets; the
+> historical test subset was used only for final evaluation after the protocol
+> was fixed. No statistically significant overall advantage over ARX-like
+> Ridge is claimed.
+
+## Manuscript and reviewer-response result boundary
+
+The manuscript's `RMSE = 0.0224`, `MAE = 0.0172`, and `R² = 0.9679` describe
+the original validation-selected single run reported by Notebook 3. They are
+retained only as the initial manuscript result and are not the primary revised
+estimate. The reviewer-response conclusions use the same, unchanged proposed
+architecture across ten pre-specified seeds: historical-test RMSE
+`0.022809 ± 0.000116`, MAE `0.017378 ± 0.000081`, and R²
+`0.967491 ± 0.000344`. ARX-like Ridge achieves RMSE `0.022751`; the available
+statistical tests do not identify a significant difference between the two
+models. This distinction reconciles the original manuscript tables with the
+additional reviewer-response evidence without redefining the proposed model.
 
 ## Dataset and source
 
@@ -63,7 +80,7 @@ flowchart TB
   end
   subgraph R3["Selection and evaluation"]
     direction LR
-    G["10-trial Optuna search<br/>validation RMSE only"] --> H["Frozen proposed model<br/>10 pre-specified seeds"] --> I["Rolling origin, LOSO,<br/>DM-HAC, MBB, Shapley"]
+    G["Notebook 3 configuration study<br/>validation RMSE only"] --> H["Same frozen manuscript model<br/>10 pre-specified seeds"] --> I["Rolling origin, LOSO,<br/>DM-HAC, MBB, Shapley"]
   end
   C --> D
   F --> G
@@ -79,9 +96,11 @@ and split, preventing lookback windows from crossing partition boundaries.
 ![Figure 2. Proposed Hybrid ARX–Residual Attentive GRU architecture](figures/Figure_02_Proposed_Hybrid_ARX_Residual_Attentive_GRU_Architecture.png)
 
 *Terminology note:* the supplied manuscript artwork retains the legacy block
-label “Physics-Guided Multi-Output Training Objective.” The unchanged objective
-is described in the revised repository text as a **consistency-regularized
-multi-output objective**; no first-principles supervision is claimed.
+label “Physics-Guided Multi-Output Training Objective.” In the reviewer-response
+terminology, this unchanged block is named **Consistency-Regularized
+Multi-Output Training Objective**. It denotes auxiliary total-yield consistency
+and soft admissible-range penalties, not independent physical supervision or a
+first-principles FCC model.
 
 | Component | Executed configuration |
 | --- | --- |
@@ -100,12 +119,15 @@ The term *process-informed* denotes the causal ARX prior, auxiliary total-yield
 consistency, and soft admissible-range penalties. It does not imply direct
 first-principles supervision or a hard physical projection.
 
-## Hyperparameter selection
+## Configuration provenance and reviewer-closure boundary
 
-Notebook 3 contains the actual Optuna study. Ten TPE trials were evaluated by
-validation macro RMSE; a median pruner used three startup trials. The selected
-configuration was then frozen for the reviewer-response experiments in
-Notebook 4—there was no test-driven re-tuning.
+Notebook 3 contains a ten-trial Optuna study evaluated exclusively by validation
+macro RMSE; a median pruner used three startup trials. This is the documented
+model-development record, not a new reviewer-closure search. The resulting
+configuration matches the manuscript architecture and was frozen before the
+additional experiments in Notebook 4. No architecture, loss weight,
+checkpoint, or random seed was selected from historical-test performance, and
+Notebook 4 performs no new hyperparameter search.
 
 | Parameter | Executed search space | Selected |
 | --- | --- | ---: |
@@ -120,9 +142,14 @@ Notebook 4—there was no test-driven re-tuning.
 | Consistency weight | [0.05, 0.30] | 0.066263 |
 | Bounds weight | [0.005, 0.05], log scale | 0.044448 |
 
-The selected Optuna trial achieved validation macro RMSE 0.020483 in Notebook
-3. Notebook 4 evaluates the frozen configuration across ten pre-specified
-seeds: 11, 23, 42, 71, 101, 131, 173, 211, 257, and 307.
+These values are the fixed configuration used in the manuscript model and the
+reviewer-response experiments; global optimality is not claimed.
+
+The validation-only study recorded a best validation macro RMSE of `0.020483`
+in Notebook 3. This value is a configuration-development result, not the
+ten-seed reviewer-response estimate. Notebook 4 evaluates the same frozen
+configuration across the pre-specified seeds 11, 23, 42, 71, 101, 131, 173,
+211, 257, and 307.
 
 ## Main frozen-model results
 
@@ -228,9 +255,12 @@ surrogate was not used for the principal Shapley conclusions.
 | 256-window median latency | 20.358 ms | 0.291 ms |
 | 256-window throughput | 12,575 windows/s | 879,916 windows/s |
 
-Timing values use one matched protocol and should not be mixed with latency
-figures from earlier manuscript drafts. ARX-like Ridge is the preferable model
-when minimal latency, simplicity, and comparable short-horizon accuracy are the
+Timing values use the unified reviewer-response protocol. Earlier Notebook 3
+latency fields were produced under a different measurement boundary and must
+not be compared directly with these values. Under the matched protocol, the
+median single-window latency is `15.221 ms` for the proposed model and
+`0.0248 ms` for ARX-like Ridge. ARX-like Ridge is therefore preferable when
+minimal latency, simplicity, and comparable short-horizon accuracy are the
 primary deployment criteria.
 
 ## Repository structure
@@ -251,7 +281,7 @@ primary deployment criteria.
 | --- | --- |
 | [`FCCU_01`](notebooks/FCCU_01_Data_Audit_and_Journal_Analysis.ipynb) | Provenance, 75-column audit, targets, leakage checks, and exploratory figures |
 | [`FCCU_02`](notebooks/FCCU_02_ML_Journal_Workflow.ipynb) | Classical ML and ARX-like baselines |
-| [`FCCU_03`](notebooks/FCCU_03_DL_SOTA_Proposed_Journal_Workflow.ipynb) | Sequence baselines, proposed architecture, and executed 10-trial Optuna search |
+| [`FCCU_03`](notebooks/FCCU_03_DL_SOTA_Proposed_Journal_Workflow.ipynb) | Sequence baselines, the manuscript architecture, and its validation-only configuration study |
 | [`FCCU_04`](notebooks/FCCU_04_Integrated_Results_Journal_Workflow.ipynb) | Frozen-model reviewer-response experiments and complete saved outputs |
 
 ## Reproducibility
@@ -278,8 +308,9 @@ Apple Silicon MPS when available, then CUDA, then CPU.
 The revised evidence supports a cautious conclusion. The Hybrid ARX–Residual
 Attentive GRU is an accurate short-horizon nonlinear extension of a strong ARX
 prior and materially outperforms several standalone deep baselines. However,
-its aggregate accuracy is statistically indistinguishable from ARX-like Ridge
-on the available historical trajectories, its computational cost is much
-higher, unseen-scenario robustness is not established, and its advantage does
-not extend to 15–30-minute horizons. New external or prospectively frozen FCCU
-trajectories are required for confirmatory superiority claims.
+the available statistical tests did not identify a significant aggregate
+difference from ARX-like Ridge on the historical trajectories. Its
+computational cost is much higher, unseen-scenario robustness is not
+established, and its advantage does not extend to 15–30-minute horizons. New
+external or prospectively frozen FCCU trajectories are required for
+confirmatory superiority claims.
